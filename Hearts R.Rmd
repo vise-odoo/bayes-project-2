@@ -10,13 +10,13 @@ GibbsSampler <- function(nchain, data, init, prop_sd){
   X <- data$X
   Y <- data$Y
   t <- X+Y
+  cured <-Y==0
   
     
   alpha <- init[1]
   delta <- init[2]
   beta <- exp(alpha)
   theta <- exp(delta)/(1+exp(delta))
-
   
   chain <- matrix(NA, nchain + 1, 4)
   chain[1,] <- c(alpha,delta, beta, theta)
@@ -25,7 +25,6 @@ GibbsSampler <- function(nchain, data, init, prop_sd){
     ## Mise a jour de Alpha et Beta
     prop <- rnorm(1, alpha, prop_sd[1])
     
-    cured <-Y==0
     p <- exp(alpha)/(1+exp(alpha))
     p_prop <- exp(prop)/(1+exp(prop))
     
@@ -45,32 +44,34 @@ GibbsSampler <- function(nchain, data, init, prop_sd){
     
     
     ## Mise a jour de Delta et Gamma 
-    prop <- rnorm(1, beta1, prop_sd[2])
-    prop_psi <- exp(beta0 + prop * temp)
+    prop <- rnorm(1, delta, prop_sd[2])
     
-    top <- sum(cens * dweibull(time, gamma, prop_psi, log = TRUE) +
-      (1 - cens) * pweibull(time, gamma, prop_psi, log = TRUE, lower.tail = FALSE)) +
-      dnorm(prop, 0, 10, log = TRUE)
-    bottom <- sum(cens * dweibull(time, gamma, psi, log = TRUE) +
-      (1 - cens) * pweibull(time, gamma, psi, log = TRUE, lower.tail = FALSE)) +
-      dnorm(beta1, 0, 10, log = TRUE)
+    
+    
+    theta <- exp(delta)/(1+exp(delta))
+    theta_prop <- exp(prop)/(1+exp(prop))
+    
+    top <- sum(log(theta_prop+(1-theta_prop)(1-p)*t) *cured +
+      (1 - cured) * log(1-theta_prop))- (prop**2)/(2*(prop_sd[2]**2))
+    
+    bottom <- sum(log(theta+(1-theta)(1-p)*t) *cured + 
+      (1 - cured) * log(1-theta))- (delta**2)/(2*(prop_sd[2]**2))
     
     acc_prob <- exp(top - bottom)
     
     if (runif(1) < acc_prob){
-      beta1 <- prop
-      psi <- prop_psi
+      delta <- prop
+      theta <- exp(delta)/(1+exp(delta))
     }
     
     
     
     ## Mettre a jour ma chaine
-    chain[i+1,] <- c(alpha, delta, gamma, beta)
+    chain[i+1,] <- c(alpha, delta, beta, theta)
   }
   
   
   return(chain)
   
 }
-
 ```
