@@ -8,6 +8,10 @@
 \usepackage[letterpaper]{geometry}
 \usepackage{hyperref}
 \usepackage{cleveref}
+\usepackage[ruled,vlined]{algorithm2e}
+
+\SetKwInput{KwInput}{Input}                % Set the Input
+\SetKwInput{KwOutput}{Output}              % set the Output
 
 \title{Hearts: a mixture model for count data}
 \author{Karim \textsc{Chakroun} \\
@@ -20,7 +24,12 @@ Vincent \textsc{Sevestre} }
     \maketitle
     
      % sections
-     
+    \input{sections/introduction}
+    \input{sections/modele}
+    \input{sections/echantillonneur}
+    \input{sections/resultats}
+    \input{sections/conclusion}
+    
     % bib
     % bib
     \bibliographystyle{abbrv}

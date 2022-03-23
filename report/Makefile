@@ -1,11 +1,9 @@
 INFILE=main.tex
 LATEX=pdflatex
 
-# TODO : svg and png support
-
 all:
 	$(LATEX) $(INFILE)
-	bibtex $(INFILE:.tex=)
+	bibtex $(INFILE:.tex=.aux)
 	$(LATEX) $(INFILE)
 
 clean:

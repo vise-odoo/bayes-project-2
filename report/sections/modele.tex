@@ -1,0 +1,31 @@
+\section{Modèle}
+
+\textsc{Farewell} et \textsc{Sprott} propose en 1988 un modèle du jeu de données \cite{Farewell1988} qui est un modèle de mélange de distributions de Poisson dans lequel certains patients sont "guéris" par le médicament, tandis que d'autres présentent des niveaux variables de réponse mais restent anormaux.
+Une valeur nulle après la prise du médicament peut indiquer une "guérison", ou peut représenter un zéro d'échantillonnage d'un patient avec un CVP normal.
+Le modèle suivant est donc proposé
+
+\begin{align*}
+    x_i \sim \mathcal P(\lambda_i) ~ &,\text{pour tous les patients} \\
+    y_i \sim \mathcal P(\beta \lambda_i) ~ &,\text{pour tous les patients }\textit{non soignés} \\
+    \mathbb P(Cure) = \theta
+\end{align*}
+
+Pour éliminer les paramètres de nuisance $\lambda_i$, \textsc{Farewell} et \textsc{Sprott} utilisent la distribution conditionnelle de $y_i$ sachant $t_i = x_i + y_i$.
+En exploitant la remarque de \cite{Cox1979} concernant la distribution conditionnelle pour des lois de Poisson, la loi jointe $(X_i, Y_i)$ est
+
+\begin{equation*}
+    \mathbb P_{(X_i, Y_i)}(X_i = x_i, Y_i = y_i) = \frac{e^{-\lambda(1 + \beta)} \lambda^{x_i + y_i} \beta^{y_i}}{x_i! y_i!}
+\end{equation*}
+
+Par conséquent, la distribution conditionnelle de $(X_i, Y_i)$ sachant $T_i := X_i + Y_i = t_i$ est
+
+\begin{equation*}
+    \mathbb P_{(X_i, Y_i) | T_i}(X_i = x_i, Y_i = y_i | T_i = t_i) = \binom{t_i}{y_i} \frac{1}{(1 + \beta)^{t_i}} \beta^{y_i} = \binom{t_i}{y_i} \frac{1}{(1 + \beta)^{t_i - y_i}} \left(\frac{\beta}{1 + \beta}\right)^{y_i}
+\end{equation*}
+
+Ainsi, le modèle de mélange final peut s'exprimer comme suit
+
+\begin{align*}
+    \mathbb P(Y_i = 0 | T_i) &= \theta + (1 - \theta)(1 - p)^{t_i} \\
+    \forall y_i > 0, \mathbb P(Y_i = y_i | T_i) &= (1-\theta)\binom{t_i}{y_i} p^{y_i} (1-p)^{t_i-y_i}
+\end{align*}

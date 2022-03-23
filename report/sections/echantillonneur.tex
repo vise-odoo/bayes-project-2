@@ -1,0 +1,65 @@
+\section{\'Echantillonneur}
+
+\subsection{Lois}
+
+\`A présent pour pouvoir déterminer les coefficients $\beta$ et $\theta$ nous considérons les lois a priori $\alpha, \delta \sim \mathcal N(0, \sigma^2)$ telles que
+\begin{align*}
+    \operatorname{logit}(p) &= \alpha \\
+    \beta &= \exp(\alpha) \\
+    \operatorname{logit}(\theta) &= \delta
+\end{align*}
+
+Afin de pouvoir échantillonner nous devons calculer les densités a posteriori $\pi(\alpha | \mathbf y, \delta)$ et $\pi(\delta | \mathbf y, \alpha)$.
+\begin{align}
+    \pi(\alpha | \mathbf y, \delta) &\propto \pi(\alpha) \prod_{i = 1}^n{\pi(y_i | \alpha, \delta)} \nonumber \\
+    &\propto \exp\left(-\frac{\alpha^2}{2\sigma^2}\right) \left(\prod_{\substack{i = 1 \\ y_i = 0}}^n(\theta + (1-\theta)(1-p)^{t_i})\right) \left(\prod_{\substack{i = 1 \\ y_i > 0}}^n(1-\theta)p^{y_i}(1-p)^{t_i-y_i}\right)
+    \label{eq:pdf_alpha}
+\end{align}
+Ainsi, par passage au log de \eqref{eq:pdf_alpha} on obtient
+\begin{equation}
+    \log \pi(\alpha | \mathbf y, \delta) = cst - \frac{\alpha^2}{2\sigma^2} + \sum_{\substack{i = 1 \\ y_i = 0}}^n\log(\theta + (1-\theta)(1-p)^{t_i}) + \sum_{\substack{i = 1 \\ y_i > 0}}^n(y_i\log{p} + (t_i-y_i)\log(1-p))
+    \label{eq:log_pdf_alpha}
+\end{equation}
+
+Par un calcul similaire à \eqref{eq:pdf_alpha} et \eqref{eq:log_pdf_alpha} on obtient pour $\delta$
+
+\begin{equation}
+    \log \pi(\delta | \mathbf y, \alpha) = cst - \frac{\delta^2}{2\sigma^2} + \sum_{\substack{i = 1 \\ y_i = 0}}^n\log(\theta + (1-\theta)(1-p)^{t_i}) + \sum_{\substack{i = 1 \\ y_i > 0}}^n\log(1-\theta)
+    \label{eq:log_pdf_delta}
+\end{equation}
+
+\subsection{Algorithme}
+
+\'Etant donné que nous n'avons pas de lois explicites pour $\alpha | \mathbf y, \delta$ et $\delta | \mathbf y, \alpha$ nous allons employé l'algorithme \textit{Metropolis-within-Gibbs} \ref{alg:sampler}.
+
+\begin{algorithm}[H]
+    \caption{Metropolis-within-Gibbs}
+    \label{alg:sampler}
+    \DontPrintSemicolon
+
+    \KwInput{N, $\sigma$, $\tilde\sigma^2$, $\alpha_0$, $\delta_0$}
+    \KwOutput{$(\alpha_i, \delta_i)_{i=1}^N$}
+    \KwData{$(t_i, x_i, y_i)_{i=1}^n$}
+
+    \For{$i \leftarrow 0$ à $N-1$}{
+        \tcp*[h]{échantillonnage de $\alpha$}\;
+        $\tilde\alpha \sim \mathcal N(\alpha_i, \tilde\sigma^2)$\;
+        $acc \leftarrow \frac{\pi(\tilde\alpha | \mathbf y, \delta_i)}{\pi(\alpha_i | \mathbf y, \delta_i)}$ \;
+        \eIf{$\mathcal U(0, 1) < acc$}{
+            $\alpha_{i+1} \leftarrow \tilde\alpha$
+        }
+        {
+            $\alpha_{i+1} \leftarrow \alpha_i$
+        }
+        \tcp*[h]{échantillonnage de $\delta$}\;
+        $\tilde\delta \sim \mathcal N(\delta_i, \tilde\sigma^2)$\;
+        $acc \leftarrow \frac{\pi(\tilde\delta | \mathbf y, \alpha_{i+1})}{\pi(\delta_i | \mathbf y, \alpha_{i+1})}$ \;
+        \eIf{$\mathcal U(0, 1) < acc$}{
+            $\delta_{i+1} \leftarrow \tilde\delta$
+        }
+        {
+            $\delta_{i+1} \leftarrow \delta_i$
+        }
+    }
+    \Return{$(\alpha_i, \delta_i)_{i=1}^N$}
+\end{algorithm}
