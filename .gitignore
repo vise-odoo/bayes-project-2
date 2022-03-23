@@ -1,0 +1,37 @@
+__pycache__
+
+# ignore envs
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.mypy_cache
+.pytest_cache
+
+# notebook
+.ipynb_checkpoints
+
+# OS generated files #
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.idea
+
+# Latex
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+
+# R session data and history files
+.Rhistory
+.RData
