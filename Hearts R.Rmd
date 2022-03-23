@@ -5,5 +5,72 @@ output: html_notebook
 
 
 ```{r}
-plot(cars)
+GibbsSampler <- function(nchain, data, init, prop_sd){
+  ## Voir les transparents du super cours
+  X <- data$X
+  Y <- data$Y
+  t <- X+Y
+  
+    
+  alpha <- init[1]
+  delta <- init[2]
+  beta <- exp(alpha)
+  theta <- exp(delta)/(1+exp(delta))
+
+  
+  chain <- matrix(NA, nchain + 1, 4)
+  chain[1,] <- c(alpha,delta, beta, theta)
+  for (i in 1:nchain){
+    
+    ## Mise a jour de Alpha et Beta
+    prop <- rnorm(1, alpha, prop_sd[1])
+    
+    cured <-Y==0
+    p <- exp(alpha)/(1+exp(alpha))
+    p_prop <- exp(prop)/(1+exp(prop))
+    
+    top <- sum(log(theta+(1-theta)(1-p_prop)*t) *cured +
+      (1 - cured) * (Y*log(p_prop)+X*log(1-p_prop)))- (prop**2)/(2*(prop_sd[1]**2))
+    
+    bottom <- sum(log(theta+(1-theta)(1-p)*t) *cured + 
+      (1 - cured) * (Y*log(p)+X*log(1-p)))- (alpha**2)/(2*(prop_sd[1]**2))
+    
+    acc_prob <- exp(top - bottom)
+    
+    if (runif(1) < acc_prob){
+      alpha <- prop
+      p <- p_prop
+      beta <- exp(alpha)
+    }
+    
+    
+    ## Mise a jour de Delta et Gamma 
+    prop <- rnorm(1, beta1, prop_sd[2])
+    prop_psi <- exp(beta0 + prop * temp)
+    
+    top <- sum(cens * dweibull(time, gamma, prop_psi, log = TRUE) +
+      (1 - cens) * pweibull(time, gamma, prop_psi, log = TRUE, lower.tail = FALSE)) +
+      dnorm(prop, 0, 10, log = TRUE)
+    bottom <- sum(cens * dweibull(time, gamma, psi, log = TRUE) +
+      (1 - cens) * pweibull(time, gamma, psi, log = TRUE, lower.tail = FALSE)) +
+      dnorm(beta1, 0, 10, log = TRUE)
+    
+    acc_prob <- exp(top - bottom)
+    
+    if (runif(1) < acc_prob){
+      beta1 <- prop
+      psi <- prop_psi
+    }
+    
+    
+    
+    ## Mettre a jour ma chaine
+    chain[i+1,] <- c(alpha, delta, gamma, beta)
+  }
+  
+  
+  return(chain)
+  
+}
+
 ```
