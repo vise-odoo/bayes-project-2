@@ -9,7 +9,7 @@ GibbsSampler <- function(nchain, data, init, prop_sd){
   ## Voir les transparents du super cours
   X <- data$X
   Y <- data$Y
-  t <- X+Y
+  t <- data$t
   cured <-Y==0
   
     
@@ -28,10 +28,10 @@ GibbsSampler <- function(nchain, data, init, prop_sd){
     p <- exp(alpha)/(1+exp(alpha))
     p_prop <- exp(prop)/(1+exp(prop))
     
-    top <- sum(log(theta+(1-theta)(1-p_prop)*t) *cured +
+    top <- sum(log(theta+(1-theta)*(1-p_prop)*t) *cured +
       (1 - cured) * (Y*log(p_prop)+X*log(1-p_prop)))- (prop**2)/(2*(prop_sd[1]**2))
     
-    bottom <- sum(log(theta+(1-theta)(1-p)*t) *cured + 
+    bottom <- sum(log(theta+(1-theta)*(1-p)*t) *cured + 
       (1 - cured) * (Y*log(p)+X*log(1-p)))- (alpha**2)/(2*(prop_sd[1]**2))
     
     acc_prob <- exp(top - bottom)
@@ -51,10 +51,10 @@ GibbsSampler <- function(nchain, data, init, prop_sd){
     theta <- exp(delta)/(1+exp(delta))
     theta_prop <- exp(prop)/(1+exp(prop))
     
-    top <- sum(log(theta_prop+(1-theta_prop)(1-p)*t) *cured +
+    top <- sum(log(theta_prop+(1-theta_prop)*(1-p)*t) *cured +
       (1 - cured) * log(1-theta_prop))- (prop**2)/(2*(prop_sd[2]**2))
     
-    bottom <- sum(log(theta+(1-theta)(1-p)*t) *cured + 
+    bottom <- sum(log(theta+(1-theta)*(1-p)*t) *cured + 
       (1 - cured) * log(1-theta))- (delta**2)/(2*(prop_sd[2]**2))
     
     acc_prob <- exp(top - bottom)
@@ -75,3 +75,25 @@ GibbsSampler <- function(nchain, data, init, prop_sd){
   
 }
 ```
+
+
+Importation des données
+```{r}
+N <-12
+t <- c(11, 11, 17, 22, 9, 6, 5, 14, 9, 7, 22, 51)
+x <- c(6, 9, 17, 22, 7, 5, 5, 14, 9, 7, 9, 51)
+y <-c(5, 2, 0, 0, 2, 1, 0, 0, 0, 0, 13, 0)
+data <- data.frame(x, y, t)
+```
+
+Utilisation de l'échantillonneur :
+```{r}
+sample <- GibbsSampler(10**4, data, c(1, 1), c(10**4, 10**4))
+
+burning <- 1:500
+alpha <- sample[1]
+summary(sample)
+```
+
+
+
