@@ -29,10 +29,10 @@ GibbsSampler <- function(nchain, data, init, prop_sd){
     p <- exp(alpha - log(1+exp(alpha)))
     p_prop <- exp(prop - log(1+exp(prop)))
     
-    top <- sum(log(theta+(1-theta)*(1-p_prop)*t) *cured +
+    top <- sum(log(theta+(1-theta)*(1-p_prop)**t) *cured +
       (1 - cured) * (Y*log(p_prop)+X*log(1-p_prop)))- (prop**2)/(2*(std**2))
     
-    bottom <- sum(log(theta+(1-theta)*(1-p)*t) *cured + 
+    bottom <- sum(log(theta+(1-theta)*(1-p)**t) *cured + 
       (1 - cured) * (Y*log(p)+X*log(1-p)))- (alpha**2)/(2*(std**2))
     
     acc_prob <- exp(top - bottom)
@@ -52,10 +52,10 @@ GibbsSampler <- function(nchain, data, init, prop_sd){
     theta <- exp(delta - log(1+exp(delta)))
     theta_prop <- exp(prop - log(1+exp(prop)))
     
-    top <- sum(log(theta_prop+(1-theta_prop)*(1-p)*t) *cured +
+    top <- sum(log(theta_prop+(1-theta_prop)*(1-p)**t) *cured +
       (1 - cured) * log(1-theta_prop))- (prop**2)/(2*(std**2))
     
-    bottom <- sum(log(theta+(1-theta)*(1-p)*t) *cured + 
+    bottom <- sum(log(theta+(1-theta)*(1-p)**t) *cured + 
       (1 - cured) * log(1-theta))- (delta**2)/(2*(std**2))
     
     acc_prob <- exp(top - bottom)
@@ -90,7 +90,7 @@ data
 
 Utilisation de l'échantillonneur :
 ```{r}
-sample <- GibbsSampler(10**4, data, c(0, 0), c(0.1 , 1))
+sample <- GibbsSampler(10**4, data, c(0, 0), c(1, 1))
 
 burning <- 1:1000
 summary(sample[-burning,])
@@ -98,6 +98,9 @@ summary(sample[-burning,])
 
 ```{r}
 plot(sample[-burning, 1])
+plot(sample[-burning, 2])
+plot(sample[-burning, 3])
+plot(sample[-burning, 4])
 ```
 
 
